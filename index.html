@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>JoTrade</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;900&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  :root {
+    --bg: #0a0d14;
+    --bg2: #0d1117;
+    --bg3: #111827;
+    --panel: #151c28;
+    --border: #1e2a3a;
+    --green: #26a69a;
+    --green2: #00e5c3;
+    --red: #ef5350;
+    --red2: #ff6b68;
+    --gold: #f0b90b;
+    --blue: #3a86ff;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #475569;
+    --sell: #ef5350;
+    --buy: #26a69a;
+    --tp: #4a9eff;
+    --label-bg-red: rgba(239,83,80,0.15);
+    --label-bg-green: rgba(38,166,154,0.15);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    height: 100dvh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ===== SPLASH SCREEN ===== */
+  #splash {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #05080f;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 0;
+  }
+
+  .splash-logo-wrap {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 160px; height: 160px;
+  }
+
+  .splash-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    animation: ringRotate 1.8s linear infinite;
+  }
+  .splash-ring:nth-child(1) {
+    width: 140px; height: 140px;
+    border-top-color: var(--gold);
+    border-right-color: var(--gold);
+    animation-duration: 1.4s;
+  }
+  .splash-ring:nth-child(2) {
+    width: 115px; height: 115px;
+    border-bottom-color: var(--green2);
+    border-left-color: var(--green2);
+    animation-duration: 1.8s;
+    animation-direction: reverse;
+  }
+  .splash-ring:nth-child(3) {
+    width: 90px; height: 90px;
+    border-top-color: rgba(240,185,11,0.4);
+    border-right-color: rgba(0,229,195,0.4);
+    animation-duration: 2.4s;
+  }
+
+  .splash-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--gold), #e67e22);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 0 40px rgba(240,185,11,0.5), 0 0 80px rgba(240,185,11,0.2);
+    animation: iconPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes ringRotate { to { transform: rotate(360deg); } }
+  @keyframes iconPulse {
+    0%,100% { box-shadow: 0 0 40px rgba(240,185,11,0.5), 0 0 80px rgba(240,185,11,0.2); }
+    50% { box-shadow: 0 0 60px rgba(240,185,11,0.8), 0 0 120px rgba(240,185,11,0.35); }
+  }
+
+  .splash-brand {
+    margin-top: 32px;
+    text-align: center;
+  }
+
+  .splash-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, var(--gold) 0%, #fff 50%, var(--green2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 2.5s ease-in-out infinite;
+    background-size: 200% 200%;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .splash-tagline {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  .splash-bars {
+    margin-top: 48px;
+    display: flex; gap: 5px; align-items: flex-end;
+    height: 32px;
+  }
+  .splash-bars span {
+    width: 5px; border-radius: 3px;
+    background: var(--gold);
+    animation: barAnim 1s ease-in-out infinite;
+  }
+  .splash-bars span:nth-child(1) { height: 14px; animation-delay: 0s; }
+  .splash-bars span:nth-child(2) { height: 22px; animation-delay: .1s; }
+  .splash-bars span:nth-child(3) { height: 30px; animation-delay: .2s; background: var(--green2); }
+  .splash-bars span:nth-child(4) { height: 20px; animation-delay: .3s; }
+  .splash-bars span:nth-child(5) { height: 26px; animation-delay: .4s; background: var(--green2); }
+  .splash-bars span:nth-child(6) { height: 16px; animation-delay: .5s; }
+  .splash-bars span:nth-child(7) { height: 28px; animation-delay: .6s; background: var(--gold); }
+
+  @keyframes barAnim {
+    0%,100% { opacity:.4; transform: scaleY(.7); }
+    50% { opacity:1; transform: scaleY(1); }
+  }
+
+  .splash-version {
+    position: absolute;
+    bottom: 32px;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 2px;
+  }
+
+  .splash-fade { animation: splashFade .5s ease forwards; }
+  @keyframes splashFade {
+    to { opacity: 0; pointer-events: none; }
+  }
+
+  /* ===== MAIN APP ===== */
+  #app {
+    display: flex; flex-direction: column;
+    height: 100dvh;
+    opacity: 0;
+    transition: opacity .5s ease;
+  }
+  #app.visible { opacity: 1; }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex; align-items: center;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    height: 52px;
+    padding: 0 12px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .topbar-sell {
+    background: var(--sell);
+    border-radius: 6px;
+    padding: 6px 10px;
+    min-width: 90px;
+    cursor: pointer;
+    transition: filter .15s;
+  }
+  .topbar-sell:active { filter: brightness(.8); }
+  .topbar-sell .label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.7); letter-spacing: 1px; }
+  .topbar-sell .price { font-size: 18px; font-weight: 700; color: #fff; line-height: 1.1; }
+  .topbar-sell .price sup { font-size: 11px; }
+
+  .topbar-center {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px;
+  }
+  .spread-btn {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--text2);
+  }
+  .spread-btn button {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 4px;
+    width: 26px; height: 26px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .spread-val { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  .topbar-buy {
+    background: var(--buy);
+    border-radius: 6px;
+    padding: 6px 10px;
+    min-width: 90px;
+    text-align: right;
+    cursor: pointer;
+    transition: filter .15s;
+  }
+  .topbar-buy:active { filter: brightness(.8); }
+  .topbar-buy .label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.7); letter-spacing: 1px; }
+  .topbar-buy .price { font-size: 18px; font-weight: 700; color: #fff; line-height: 1.1; }
+  .topbar-buy .price sup { font-size: 11px; }
+
+  /* CHART INFO BAR */
+  .infobar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .infobar-left {}
+  .pair-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .pair-tf { font-size: 10px; color: var(--gold); font-weight: 600; }
+  .pair-full { font-size: 10px; color: var(--text3); margin-top: 1px; }
+  .infobar-right { display: flex; gap: 16px; align-items: center; }
+  .ohlc-item { text-align: center; }
+  .ohlc-label { font-size: 8px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+  .ohlc-val { font-size: 11px; font-weight: 600; }
+
+  /* CHART AREA */
+  .chart-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  canvas#chart {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+
+  /* PRICE SCALE */
+  .price-scale {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 70px;
+    pointer-events: none;
+  }
+
+  /* ORDER LABELS */
+  .order-label {
+    position: absolute;
+    right: 72px;
+    transform: translateY(-50%);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    pointer-events: none;
+    white-space: nowrap;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+  .order-label.sell-label {
+    color: var(--red2);
+    background: rgba(239,83,80,.12);
+    border: 1px solid rgba(239,83,80,.3);
+  }
+  .order-label.tp-label {
+    color: var(--tp);
+    background: rgba(74,158,255,.1);
+    border: 1px solid rgba(74,158,255,.25);
+  }
+  .order-label.current-label {
+    color: #fff;
+    background: var(--green);
+    right: 0;
+    border-radius: 0;
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  .price-line {
+    position: absolute;
+    right: 0; left: 0;
+    height: 1px;
+    pointer-events: none;
+  }
+  .price-line.sell-line { border-top: 1px dashed rgba(239,83,80,.5); }
+  .price-line.tp-line { border-top: 1px dashed rgba(74,158,255,.35); }
+  .price-line.current-line { border-top: 1px solid rgba(38,166,154,.8); }
+
+  /* BOTTOM PANEL */
+  .bottom-panel {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 10px 12px;
+    flex-shrink: 0;
+  }
+
+  .tabs {
+    display: flex; gap: 0;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 10px;
+  }
+  .tab {
+    flex: 1; text-align: center;
+    padding: 5px 0;
+    font-size: 10px; font-weight: 600;
+    color: var(--text3);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .5px;
+  }
+  .tab.active {
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,.4);
+  }
+
+  .positions-list { display: flex; flex-direction: column; gap: 6px; }
+  .position-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .pos-left {}
+  .pos-pair { font-size: 11px; font-weight: 700; }
+  .pos-meta { font-size: 9px; color: var(--text3); margin-top: 1px; }
+  .pos-right { text-align: right; }
+  .pos-pnl { font-size: 13px; font-weight: 700; }
+  .pos-pnl.pos { color: var(--green2); }
+  .pos-pnl.neg { color: var(--red2); }
+  .pos-pip { font-size: 9px; color: var(--text3); }
+
+  /* VOLUME LOT CONTROL */
+  .lot-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .lot-label { font-size: 10px; color: var(--text2); white-space: nowrap; }
+  .lot-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 5px;
+    width: 28px; height: 28px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lot-val {
+    flex: 1; text-align: center;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 13px; font-weight: 700;
+    color: var(--text);
+    padding: 4px 0;
+  }
+
+  .action-row {
+    display: flex; gap: 8px;
+  }
+  .btn-sell-main, .btn-buy-main {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 0;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .5px;
+    transition: filter .15s, transform .1s;
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+  }
+  .btn-sell-main { background: var(--sell); color: #fff; }
+  .btn-buy-main { background: var(--buy); color: #fff; }
+  .btn-sell-main:active, .btn-buy-main:active { filter: brightness(.8); transform: scale(.97); }
+  .btn-price { font-size: 10px; font-weight: 400; opacity: .8; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 160px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text);
+    z-index: 100;
+    opacity: 0;
+    transition: all .3s ease;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green2); }
+  .toast.error { border-color: var(--red); color: var(--red2); }
+
+  /* CROSSHAIR INFO */
+  .crosshair-info {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: rgba(13,17,23,.85);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 9px;
+    color: var(--text2);
+    pointer-events: none;
+    display: none;
+    font-family: 'Inter', monospace;
+    line-height: 1.6;
+  }
+  .crosshair-info.visible { display: block; }
+
+  /* MA Line overlay label */
+  .ma-label {
+    position: absolute;
+    left: 8px;
+    font-size: 9px;
+    color: #e2803a;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo-wrap">
+    <div class="splash-ring"></div>
+    <div class="splash-ring"></div>
+    <div class="splash-ring"></div>
+    <div class="splash-icon">📈</div>
+  </div>
+  <div class="splash-brand">
+    <div class="splash-name">JoTrade</div>
+    <div class="splash-tagline">Professional Trading Platform</div>
+  </div>
+  <div class="splash-bars">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="splash-version">v2.1.0 · XAUUSD · FOREX · CRYPTO</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-sell" onclick="executeTrade('SELL')">
+      <div class="label">SELL</div>
+      <div class="price" id="sell-price">2534.<sup>63</sup></div>
+    </div>
+    <div class="topbar-center">
+      <div class="spread-btn">
+        <button onclick="changeLot(-1)">−</button>
+        <span class="spread-val" id="spread-display">0.05</span>
+        <button onclick="changeLot(1)">+</button>
+      </div>
+    </div>
+    <div class="topbar-buy" onclick="executeTrade('BUY')">
+      <div class="label">BUY</div>
+      <div class="price" id="buy-price">2534.<sup>74</sup></div>
+    </div>
+  </div>
+
+  <!-- INFO BAR -->
+  <div class="infobar">
+    <div class="infobar-left">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="pair-name">XAUUSD</span>
+        <span class="pair-tf">M5</span>
+      </div>
+      <div class="pair-full">Gold vs US Dollar</div>
+    </div>
+    <div class="infobar-right">
+      <div class="ohlc-item">
+        <div class="ohlc-label">O</div>
+        <div class="ohlc-val" id="ohlc-o" style="color:#94a3b8">2518.4</div>
+      </div>
+      <div class="ohlc-item">
+        <div class="ohlc-label">H</div>
+        <div class="ohlc-val" id="ohlc-h" style="color:#26a69a">2541.8</div>
+      </div>
+      <div class="ohlc-item">
+        <div class="ohlc-label">L</div>
+        <div class="ohlc-val" id="ohlc-l" style="color:#ef5350">2510.2</div>
+      </div>
+      <div class="ohlc-item">
+        <div class="ohlc-label">C</div>
+        <div class="ohlc-val" id="ohlc-c" style="color:#e2e8f0">2534.6</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-area" id="chart-wrap">
+    <canvas id="chart"></canvas>
+    <div class="crosshair-info" id="crosshair-info"></div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="bottom-panel">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'trade')">TRADE</div>
+      <div class="tab" onclick="switchTab(this,'positions')">POSITIONS</div>
+      <div class="tab" onclick="switchTab(this,'history')">HISTORY</div>
+    </div>
+
+    <div id="tab-trade">
+      <div class="lot-row">
+        <span class="lot-label">Volume (Lot):</span>
+        <button class="lot-btn" onclick="changeLotVal(-0.01)">−</button>
+        <div class="lot-val" id="lot-display">0.05</div>
+        <button class="lot-btn" onclick="changeLotVal(0.01)">+</button>
+      </div>
+      <div class="action-row">
+        <button class="btn-sell-main" onclick="executeTrade('SELL')">
+          SELL
+          <span class="btn-price" id="btn-sell-price">2534.630</span>
+        </button>
+        <button class="btn-buy-main" onclick="executeTrade('BUY')">
+          BUY
+          <span class="btn-price" id="btn-buy-price">2534.742</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="tab-positions" style="display:none">
+      <div class="positions-list" id="positions-list">
+        <div style="color:var(--text3);font-size:11px;text-align:center;padding:10px">
+          Belum ada posisi terbuka
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-history" style="display:none">
+      <div id="history-list" class="positions-list">
+        <div style="color:var(--text3);font-size:11px;text-align:center;padding:10px">
+          Riwayat kosong
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let currentPrice = 2534.63;
+let lotSize = 0.05;
+let candles = [];
+let animFrame;
+let positions = [];
+let history = [];
+let liveCandle = null;
+let tickCount = 0;
+
+// Orders / levels
+const orders = [
+  { type:'SELL', price:2541.850, lot:0.05 },
+  { type:'SELL', price:2538.371, lot:0.05 },
+  { type:'SELL', price:2524.916, lot:0.05 },
+  { type:'TP',   price:2532.064 },
+  { type:'TP',   price:2530.007 },
+  { type:'TP',   price:2527.430 },
+  { type:'TP',   price:2505.426 },
+];
+
+// ===== CANDLE GENERATION =====
+function generateInitialCandles() {
+  candles = [];
+  let price = 2510;
+  const now = Date.now();
+  for(let i = 80; i >= 1; i--) {
+    const open = price + (Math.random() - 0.46) * 4;
+    const close = open + (Math.random() - 0.42) * 6;
+    const high = Math.max(open, close) + Math.random() * 3;
+    const low = Math.min(open, close) - Math.random() * 3;
+    candles.push({ open, high, low, close, t: now - i * 5 * 60000 });
+    price = close;
+  }
+  // Make last candles go up like image
+  for(let i = 0; i < 12; i++) {
+    const open = price + (Math.random() - 0.3) * 5;
+    const close = open + (Math.random() - 0.2) * 8 + 2;
+    const high = Math.max(open, close) + Math.random() * 2;
+    const low = Math.min(open, close) - Math.random() * 2;
+    candles.push({ open, high, low, close, t: now - (12 - i) * 5 * 60000 });
+    price = close;
+  }
+  currentPrice = price;
+  liveCandle = { open: price, high: price, low: price, close: price, t: now };
+}
+
+// ===== CANVAS / CHART =====
+const canvas = document.getElementById('chart');
+const ctx = canvas.getContext('2d');
+let chartW = 0, chartH = 0;
+let priceMin = 0, priceMax = 0;
+let isDragging = false, dragStartX = 0, scrollOffset = 0;
+
+function resize() {
+  const wrap = document.getElementById('chart-wrap');
+  chartW = wrap.clientWidth;
+  chartH = wrap.clientHeight;
+  canvas.width = chartW * window.devicePixelRatio;
+  canvas.height = chartH * window.devicePixelRatio;
+  canvas.style.width = chartW + 'px';
+  canvas.style.height = chartH + 'px';
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function priceToY(p) {
+  return chartH - ((p - priceMin) / (priceMax - priceMin)) * chartH;
+}
+function yToPrice(y) {
+  return priceMin + ((chartH - y) / chartH) * (priceMax - priceMin);
+}
+
+function calcPriceRange(visibleCandles) {
+  let lo = Infinity, hi = -Infinity;
+  for(const c of visibleCandles) {
+    if(c.low < lo) lo = c.low;
+    if(c.high > hi) hi = c.high;
+  }
+  // Add orders to range
+  for(const o of orders) {
+    if(o.price < lo) lo = o.price;
+    if(o.price > hi) hi = o.price;
+  }
+  const pad = (hi - lo) * 0.15;
+  priceMin = lo - pad;
+  priceMax = hi + pad;
+}
+
+const CANDLE_W = 8;
+const CANDLE_GAP = 4;
+const CANDLE_STEP = CANDLE_W + CANDLE_GAP;
+const SCALE_W = 70;
+
+function drawChart() {
+  ctx.clearRect(0, 0, chartW, chartH);
+
+  // All candles including live
+  const allCandles = [...candles, liveCandle];
+  const maxVisible = Math.floor((chartW - SCALE_W) / CANDLE_STEP) + 2;
+  const total = allCandles.length;
+  const startIdx = Math.max(0, total - maxVisible - Math.floor(scrollOffset / CANDLE_STEP));
+  const visibleCandles = allCandles.slice(startIdx);
+
+  calcPriceRange(visibleCandles);
+
+  // Grid
+  drawGrid();
+
+  // MA line
+  drawMA
