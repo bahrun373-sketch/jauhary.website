@@ -690,4 +690,28 @@ function drawChart() {
   drawGrid();
 
   // MA line
-  drawMA
+      drawMA();
+    drawOrders();
+    drawLivePrice();
+  }
+
+  // Handle Resize
+  window.addEventListener('resize', () => {
+    initCanvas();
+    render();
+  });
+
+  // Start Application
+  window.addEventListener('load', () => {
+    initCanvas();
+    generateInitialCandles();
+    
+    // Start price movement updates
+    setInterval(() => {
+      updateLivePrice();
+    }, 1000);
+  });
+</script>
+</body>
+</html>
+
