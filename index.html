@@ -685,8 +685,189 @@ function drawChart() {
 
   calcPriceRange(visibleCandles);
 
-  // Grid
-  drawGrid();
+  <script>
+// ... (Ganti atau sambung kode drawMA yang terpotong tadi dengan baris di bawah ini) ...
 
-  // MA line
-  drawMA
+function drawGrid() {
+  ctx.strokeStyle = '#1e2a3a';
+  ctx.lineWidth = 0.5;
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter';
+
+  // Grid Horizontal & Skala Harga
+  const step = (priceMax - priceMin) / 6;
+  for(let i=0; i<=6; i++) {
+    const p = priceMin + step * i;
+    const y = priceToY(p);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(chartW - 70, y);
+    ctx.stroke();
+    ctx.fillText(p.toFixed(2), chartW - 65, y + 4);
+  }
+}
+
+function drawMA() {
+  const allCandles = [...candles, liveCandle];
+  const period = 14;
+  if(allCandles.length < period) return;
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#e2803a';
+  ctx.lineWidth = 1.5;
+
+  let first = true;
+  const maxVisible = Math.floor((chartW - 70) / 12) + 2;
+  const total = allCandles.length;
+  const startIdx = Math.max(0, total - maxVisible - Math.floor(scrollOffset / 12));
+
+  for(let i = startIdx; i < total; i++) {
+    if(i < period) continue;
+    let sum = 0;
+    for(let j = 0; j < period; j++) {
+      sum += allCandles[i-j].close;
+    }
+    const ma = sum / period;
+    const x = chartW - 70 - (total - 1 - i) * 12 + scrollOffset;
+    const y = priceToY(ma);
+
+    if(first) { ctx.moveTo(x, y); first = false; }
+    else { ctx.lineTo(x, y); }
+  }
+  ctx.stroke();
+}
+
+function updatePrices() {
+  tickCount++;
+  const change = (Math.random() - 0.5) * 0.4;
+  currentPrice += change;
+
+  if(currentPrice > liveCandle.high) liveCandle.high = currentPrice;
+  if(currentPrice < liveCandle.low) liveCandle.low = currentPrice;
+  liveCandle.close = currentPrice;
+
+  // Ganti candle setiap 20 tick
+  if(tickCount >= 20) {
+    tickCount = 0;
+    candles.push({...liveCandle});
+    if(candles.length > 150) candles.shift();
+    liveCandle = {
+      open: currentPrice,
+      high: currentPrice,
+      low: currentPrice,
+      close: currentPrice,
+      t: Date.now()
+    };
+  }
+
+  // Update Tampilan HTML
+  document.getElementById('sell-price').innerHTML = Math.floor(currentPrice) + '.<sup>' + Math.abs(Math.floor((currentPrice % 1) * 100)).toString().padStart(2,'0') + '</sup>';
+  document.getElementById('buy-price').innerHTML = Math.floor(currentPrice + 0.1) + '.<sup>' + Math.abs(Math.floor(((currentPrice + 0.1) % 1) * 100)).toString().padStart(2,'0') + '</sup>';
+  document.getElementById('btn-sell-price').innerText = (currentPrice).toFixed(3);
+  document.getElementById('btn-buy-price').innerText = (currentPrice + 0.1).toFixed(3);
+  document.getElementById('ohlc-c').innerText = currentPrice.toFixed(1);
+}
+
+function drawCandles() {
+  const allCandles = [...candles, liveCandle];
+  const total = allCandles.length;
+  
+  allCandles.forEach((c, i) => {
+    const x = chartW - 70 - (total - 1 - i) * 12 + scrollOffset;
+    const yOpen = priceToY(c.open);
+    const yClose = priceToY(c.close);
+    const yHigh = priceToY(c.high);
+    const yLow = priceToY(c.low);
+
+    ctx.strokeStyle = c.close >= c.open ? '#26a69a' : '#ef5350';
+    ctx.fillStyle = c.close >= c.open ? '#26a69a' : '#ef5350';
+    ctx.lineWidth = 1;
+
+    // Garis sumbu candle
+    ctx.beginPath();
+    ctx.moveTo(x, yHigh);
+    ctx.lineTo(x, yLow);
+    ctx.stroke();
+
+    // Badan candle
+    const top = Math.min(yOpen, yClose);
+    const h = Math.max(1, Math.abs(yOpen - yClose));
+    ctx.fillRect(x - 4, top, 8, h);
+  });
+}
+
+function render() {
+  resize();
+  drawChart();
+  drawCandles();
+  drawGrid();
+  drawMA();
+  updatePrices();
+  animFrame = requestAnimationFrame(render);
+}
+
+function changeLotVal(val) {
+  lotSize = Math.max(0.01, parseFloat((lotSize + val).toFixed(2)));
+  document.getElementById('lot-display').innerText = lotSize.toFixed(2);
+}
+
+function executeTrade(type) {
+  const p = type === 'BUY' ? currentPrice + 0.1 : currentPrice;
+  positions.push({ type, price: p, lot: lotSize, id: Date.now() });
+  showToast("Order " + type + " Berhasil dibuka", "success");
+  updatePositionsList();
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 2000);
+}
+
+function updatePositionsList() {
+  const list = document.getElementById('positions-list');
+  if(positions.length === 0) {
+    list.innerHTML = `<div style="color:var(--text3);font-size:11px;text-align:center;padding:10px">Belum ada posisi terbuka</div>`;
+    return;
+  }
+  list.innerHTML = positions.map(p => `
+    <div class="position-item">
+      <div class="pos-left">
+        <div class="pos-pair">XAUUSD · ${p.type}</div>
+        <div class="pos-meta">Price: ${p.price.toFixed(2)} | Lot: ${p.lot}</div>
+      </div>
+      <div class="pos-right">
+        <div class="pos-pnl pos">$0.00</div>
+        <button onclick="closePosition(${p.id})" style="background:#ef5350;border:none;color:#fff;font-size:9px;padding:2px 6px;border-radius:3px;margin-top:2px;">Close</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function closePosition(id) {
+  positions = positions.filter(p => p.id !== id);
+  showToast("Posisi berhasil ditutup", "error");
+  updatePositionsList();
+}
+
+function switchTab(el, tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-trade').style.display = tabName === 'trade' ? 'block' : 'none';
+  document.getElementById('tab-positions').style.display = tabName === 'positions' ? 'block' : 'none';
+  document.getElementById('tab-history').style.display = tabName === 'history' ? 'block' : 'none';
+}
+
+// Hilangkan Layar Splash setelah 2.5 Detik
+window.addEventListener('load', () => {
+  generateInitialCandles();
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('splash-fade');
+    document.getElementById('app').classList.add('visible');
+    render();
+  }, 2500);
+});
+</script>
+</body>
+</html>
