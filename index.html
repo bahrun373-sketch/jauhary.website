@@ -159,12 +159,77 @@
         calcPriceRange(visibleCandles);
 
         drawGrid();
+        drawCandles(visibleCandles, total, maxVisible); // Menggambar lilin
         drawMA();
         drawOrders();
         drawLivePrice();
     }
 
     function getX(idx, total, maxVisible) {
+        return (chartW - SCALE_W) - (total - 1 - idx) * CANDLE_STEP - CANDLE_W/2;
+    }
+
+    function getY(price) {
+        return chartH * (1 - (price - priceMin) / (priceMax - priceMin));
+    }
+
+    function drawGrid() {
+        ctx.strokeStyle = '#1e2530';
+        ctx.lineWidth = 1;
+        ctx.fillStyle = '#848e9c';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+
+        const lines = 5;
+        for (let i = 1; i < lines; i++) {
+            let y = (chartH / lines) * i;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(chartW - SCALE_W, y);
+            ctx.stroke();
+
+            let p = priceMax - (y / chartH) * (priceMax - priceMin);
+            ctx.fillText(p.toFixed(2), chartW - 5, y);
+        }
+    }
+
+    function drawCandles(visibleCandles, total, maxVisible) {
+        visibleCandles.forEach((c, i) => {
+            const idx = total - visibleCandles.length + i;
+            const x = getX(idx, total, maxVisible);
+            const yOpen = getY(c.open);
+            const yClose = getY(c.close);
+            const yHigh = getY(c.high);
+            const yLow = getY(c.low);
+
+            const isUp = c.close >= c.open;
+            ctx.strokeStyle = isUp ? '#00c076' : '#ff3b30';
+            ctx.fillStyle = isUp ? '#00c076' : '#ff3b30';
+            ctx.lineWidth = 1.5;
+
+            // Gambar sumbu atas dan bawah (shadow)
+            ctx.beginPath();
+            ctx.moveTo(x + CANDLE_W / 2, yHigh);
+            ctx.lineTo(x + CANDLE_W / 2, yLow);
+            ctx.stroke();
+
+            // Gambar batang (body) lilin
+            const bodyH = Math.abs(yClose - yOpen);
+            ctx.fillRect(x, Math.min(yOpen, yClose), CANDLE_W, Math.max(1, bodyH));
+        });
+    }
+
+    function drawMA() {}
+    function drawOrders() {}
+    function drawLivePrice() {
+        ctx.fillStyle = liveCandle.close >= liveCandle.open ? '#00c076' : '#ff3b30';
+        ctx.font = '11px monospace';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        let y = getY(liveCandle.close);
+        ctx.fillText(liveCandle.close.toFixed(2), chartW - 5, y);
+    }
         return (chartW - SCALE_W) - (total - 1 - idx) * CANDLE_STEP - CANDLE_W/2;
     }
 
