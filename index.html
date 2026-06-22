@@ -12,7 +12,6 @@
         .logo-container { width: 80px; height: 80px; background: linear-gradient(135deg, #f3ba2f, #f0a500); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 12px; box-shadow: 0 0 20px rgba(243, 186, 47, 0.4); position: relative; }
         .logo-container::before { content: ''; position: absolute; width: 90px; height: 90px; border: 2px solid #00c076; border-radius: 50%; border-top-color: transparent; animation: spin 4s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .logo-icon { width: 40px; height: 40px; background-color: #ffffff; clip-path: polygon(20% 80%, 40% 50%, 60% 70%, 90% 20%, 90% 35%, 80% 40%, 90% 40%, 90% 20%, 70% 20%); }
         h1 { font-size: 32px; font-weight: 800; letter-spacing: 2px; margin-bottom: 4px; background: linear-gradient(to right, #ffffff, #e0e0e0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .subtitle { font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: #848e9c; }
         .chart-container { position: relative; width: 100%; height: 300px; background-color: #0b0e11; border-radius: 8px; margin-bottom: 20px; border: 1px solid #2b3139; overflow: hidden; }
@@ -133,10 +132,6 @@
             if(c.low < lo) lo = c.low;
             if(c.high > hi) hi = c.high;
         }
-        for(const o of orders) {
-            if(o.price < lo) lo = o.price;
-            if(o.price > hi) hi = o.price;
-        }
         const pad = (hi - lo) * 0.15;
         priceMin = lo - pad;
         priceMax = hi + pad;
@@ -159,9 +154,7 @@
         calcPriceRange(visibleCandles);
 
         drawGrid();
-        drawCandles(visibleCandles, total, maxVisible); // Menggambar lilin
-        drawMA();
-        drawOrders();
+        drawCandles(visibleCandles, total, maxVisible);
         drawLivePrice();
     }
 
@@ -208,58 +201,16 @@
             ctx.fillStyle = isUp ? '#00c076' : '#ff3b30';
             ctx.lineWidth = 1.5;
 
-            // Gambar sumbu atas dan bawah (shadow)
             ctx.beginPath();
             ctx.moveTo(x + CANDLE_W / 2, yHigh);
             ctx.lineTo(x + CANDLE_W / 2, yLow);
             ctx.stroke();
 
-            // Gambar batang (body) lilin
             const bodyH = Math.abs(yClose - yOpen);
             ctx.fillRect(x, Math.min(yOpen, yClose), CANDLE_W, Math.max(1, bodyH));
         });
     }
 
-    function drawMA() {}
-    function drawOrders() {}
-    function drawLivePrice() {
-        ctx.fillStyle = liveCandle.close >= liveCandle.open ? '#00c076' : '#ff3b30';
-        ctx.font = '11px monospace';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-        let y = getY(liveCandle.close);
-        ctx.fillText(liveCandle.close.toFixed(2), chartW - 5, y);
-    }
-        return (chartW - SCALE_W) - (total - 1 - idx) * CANDLE_STEP - CANDLE_W/2;
-    }
-
-    function getY(price) {
-        return chartH * (1 - (price - priceMin) / (priceMax - priceMin));
-    }
-
-    function drawGrid() {
-        ctx.strokeStyle = '#1e2530';
-        ctx.lineWidth = 1;
-        ctx.fillStyle = '#848e9c';
-        ctx.font = '10px monospace';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-
-        const lines = 5;
-        for (let i = 1; i < lines; i++) {
-            let y = (chartH / lines) * i;
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(chartW - SCALE_W, y);
-            ctx.stroke();
-
-            let p = priceMax - (y / chartH) * (priceMax - priceMin);
-            ctx.fillText(p.toFixed(2), chartW - 5, y);
-        }
-    }
-
-    function drawMA() {}
-    function drawOrders() {}
     function drawLivePrice() {
         ctx.fillStyle = liveCandle.close >= liveCandle.open ? '#00c076' : '#ff3b30';
         ctx.font = '11px monospace';
@@ -296,4 +247,5 @@
     });
 </script>
 </body>
-</html>
+                                                                                                 </html>
+                                           
