@@ -41,7 +41,8 @@
   }
 
   /* ===== SPLASH SCREEN ===== */
-  #splash {
+  splash {
+      display: none;
     position: fixed; inset: 0; z-index: 9999;
     background: #05080f;
     display: flex; flex-direction: column;
@@ -170,7 +171,7 @@
   #app {
     display: flex; flex-direction: column;
     height: 100dvh;
-    opacity: 0;
+    opacity: 1;
     transition: opacity .5s ease;
   }
   #app.visible { opacity: 1; }
